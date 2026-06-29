@@ -95,8 +95,7 @@ stages:
   jobs:
   - job: DeploymentEvidence
     steps:
-    - download: current
-      artifact: drop-fakerestapi
+   
 
     - download: current
       artifact: drop-perftests
