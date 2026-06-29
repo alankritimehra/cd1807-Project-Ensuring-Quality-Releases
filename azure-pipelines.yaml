@@ -44,9 +44,9 @@ stages:
         command: 'init'
         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
         backendServiceArm: '$(azureServiceConnectionId)'
-        backendAzureRmResourceGroupName: ''
-        backendAzureRmStorageAccountName: ''
-        backendAzureRmContainerName: ''
+        backendAzureRmResourceGroupName: 'Azuredevops'
+        backendAzureRmStorageAccountName: 'tfstate83519417'
+        backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'test.terraform.tfstate'
 
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV3@3
@@ -121,9 +121,9 @@ stages:
       inputs:
         testResultsFormat: 'JUnit'
         testResultsFiles: '**/TEST-*.xml'
-        searchFolder:       # ToDo
+        searchFolder:        '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
         mergeTestResults: true
-        testRunTitle:       # ToDo
+        testRunTitle:       'Postman Tests'
 
     #--------------------------------------------#
     # Selenium (UI) Test Suite - Archive the package  
@@ -180,7 +180,7 @@ stages:
   - deployment: FakeRestAPI
     pool:
       vmImage: 'Ubuntu-18.04'      
-    environment: <environment name>   # ToDo
+    environment: test
     strategy:
       runOnce:
         deploy:
@@ -188,8 +188,8 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App'
             inputs:
-              azureSubscription: ''     # ToDo
-              appName: ''               # ToDo
+              azureSubscription: 'myServiceConnection'
+              appName: 'qualityreleaseapp'
               appType: webApp
               package: $(Pipeline.Workspace)/<artifact>/<archiveFile>       # ToDo: Use the published zip artifact. 
           #--------------------------------------------#    
@@ -210,7 +210,7 @@ stages:
   - deployment: VMDeploy
     displayName: Selenium Tests
     environment:
-      name:         # ToDo: Change/provide a name
+      name:         DeployFakeRestAPI
       resourceType: VirtualMachine
       tags: selenium
     strategy:
