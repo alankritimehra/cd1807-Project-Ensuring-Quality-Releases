@@ -27,17 +27,12 @@ stages:
 
       displayName: 'Install Terraform'
 
-    - task: AzureCLI@2
-      displayName: 'Terraform init validate plan'
-      inputs:
-        azureSubscription: '$(azureServiceConnectionId)'
-        scriptType: bash
-        scriptLocation: inlineScript
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-        inlineScript: |
-          terraform init -reconfigure
-          terraform validate
-          terraform plan
+    inputs:
+      azureSubscription: '$(azureServiceConnectionId)'
+      scriptType: bash
+      scriptLocation: inlineScript
+      
+  inlineScript: |
 
     - script: |
         sudo npm install -g newman
