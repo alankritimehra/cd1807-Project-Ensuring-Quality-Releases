@@ -37,8 +37,13 @@ stages:
       workingDirectory: '$(System.DefaultWorkingDirectory)'
 
     - script: |
+        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+        node -v
+        npm -v
         sudo npm install -g newman
-      displayName: 'Install Newman'
+        newman -v
+      displayName: 'Install Node.js & Newman'
 
     - script: |
         newman run TestSuite.Data-Validation.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-DataValidation.xml || true
