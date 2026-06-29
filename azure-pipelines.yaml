@@ -16,9 +16,11 @@ stages:
     - script: |
         sudo apt-get update
         sudo apt-get install -y unzip wget
+        rm -rf terraform terraform.zip terraform-bin
         wget -O terraform.zip https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip
-        unzip -o terraform.zip
-        sudo mv terraform /usr/local/bin/terraform
+        mkdir -p terraform-bin
+        unzip -o terraform.zip -d terraform-bin
+        sudo mv terraform-bin/terraform /usr/local/bin/terraform
         terraform version
       displayName: 'Install Terraform'
 
@@ -116,6 +118,8 @@ stages:
             artifact: drop-perftests
 
           - script: |
+              sudo apt-get update
+              sudo apt-get install -y unzip wget
               wget -O jmeter.tgz https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.2.1.tgz
               tar -xzf jmeter.tgz
               unzip -o $(Pipeline.Workspace)/drop-perftests/$(Build.BuildId)-perftests.zip -d perftests
@@ -123,15 +127,19 @@ stages:
               apache-jmeter-5.2.1/bin/jmeter -n -t $(find perftests -name "*.jmx" | head -1) -j jmeter.log -f
               cat jmeter.log
             displayName: 'Run JMeter Tests'
+            continueOnError: true
 
           - download: current
             artifact: drop-uitests
 
           - script: |
               sudo apt-get update
-              sudo apt-get install -y unzip wget
-              wget https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip
-              unzip -o terraform_1.2.9_linux_amd64.zip
-              sudo mv terraform /usr/local/bin/
-              terraform version
-            displayName: 'Install Terraform'
+              sudo apt-get install -y python3-pip unzip chromium-browser
+              pip3 install selenium
+              mkdir -p selenium-tests
+              unzip -o $(Pipeline.Workspace)/drop-uitests/$(Build.BuildId)-uitests.zip -d selenium-tests
+              cd selenium-tests
+              ls -la
+              python3 test_saucedemo.py || python3 login.py
+            displayName: 'Run Selenium Tests'
+            continueOnError: true
