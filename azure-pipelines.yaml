@@ -65,16 +65,7 @@ stages:
         mergeTestResults: true
         testRunTitle: 'Postman Tests'
 
-    - task: ArchiveFiles@2
-      displayName: 'Archive UI Tests'
-      inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/selenium'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip'
-
-    - publish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip'
-      artifact: drop-uitests
+    
 
     - task: ArchiveFiles@2
       displayName: 'Archive FakeRestAPI'
