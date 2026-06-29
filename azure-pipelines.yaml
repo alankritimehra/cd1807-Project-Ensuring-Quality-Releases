@@ -4,7 +4,7 @@ trigger:
 pool: myAgentPool
 
 variables:
-  azureServiceConnectionId: 'myServiceConnection'
+  azureServiceConnectionId: 'AzureServiceConnection'
   appName: 'qualityreleaseapp'
   environmentName: 'test'
 
