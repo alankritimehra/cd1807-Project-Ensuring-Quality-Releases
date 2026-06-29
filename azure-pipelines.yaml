@@ -46,12 +46,12 @@ stages:
       displayName: 'Install Node.js & Newman'
 
     - script: |
-        newman run TestSuite.Data-Validation.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-DataValidation.xml || true
+        newman run TestSuite.Data-Validation.json -e StarterAPIs.json --reporters cli,junit --reporter-junit-export TEST-DataValidation.xml || true
       displayName: 'Run Data Validation Tests'
       workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
 
     - script: |
-        newman run TestSuite.Regression.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-Regression.xml || true
+        newman run TestSuite.Regression.json -e StarterAPIs.json --reporters cli,junit --reporter-junit-export TEST-Regression.xml || true
       displayName: 'Run Regression Tests'
       workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
 
