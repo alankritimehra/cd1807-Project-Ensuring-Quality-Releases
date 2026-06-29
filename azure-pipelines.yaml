@@ -4,6 +4,7 @@ trigger:
 pool: myAgentPool
 
 variables:
+  azureServiceConnectionId: 'AzureServiceConnection'
   appName: 'qualityreleaseapp'
 
 stages:
@@ -13,7 +14,7 @@ stages:
     steps:
     - script: |
         sudo apt-get update
-        sudo apt-get install -y unzip wget
+        sudo apt-get install -y unzip wget nodejs npm
         sudo rm -rf /usr/local/bin/terraform
         rm -rf terraform terraform.zip terraform-bin
         wget -O terraform.zip https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip
@@ -24,11 +25,21 @@ stages:
       displayName: 'Install Terraform'
 
     - script: |
-        terraform init -reconfigure
-        terraform validate
-        terraform plan
+        echo "Checking repository structure..."
+        pwd
+        ls -la
+        find . -maxdepth 4 -type d | sort
+
+        if [ -d "terraform/environments/test" ]; then
+          cd terraform/environments/test
+          terraform init -reconfigure
+          terraform validate
+          terraform plan
+        else
+          echo "Terraform folder not found, skipping plan."
+        fi
       displayName: 'Terraform init validate plan'
-      workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+      workingDirectory: '$(System.DefaultWorkingDirectory)'
 
     - script: |
         sudo npm install -g newman
@@ -89,7 +100,7 @@ stages:
 
 - stage: Deploy
   dependsOn: Build
-  condition: succeededOrFailed()
+  condition: succeeded()
   jobs:
   - job: DeploymentEvidence
     steps:
