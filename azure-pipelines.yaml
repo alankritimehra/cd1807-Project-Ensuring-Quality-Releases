@@ -16,12 +16,15 @@ stages:
     - script: |
         sudo apt-get update
         sudo apt-get install -y unzip wget
-        rm -rf terraform terraform.zip terraform-bin
+
+        sudo rm -rf /usr/local/bin/terraform
+
         wget -O terraform.zip https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip
-        mkdir -p terraform-bin
+
+        rm -rf terraform-bin
+        mkdir terraform-bin
         unzip -o terraform.zip -d terraform-bin
-        sudo mv terraform-bin/terraform /usr/local/bin/terraform
-        terraform version
+
       displayName: 'Install Terraform'
 
     - task: AzureCLI@2
