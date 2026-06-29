@@ -3,10 +3,6 @@ trigger:
 
 pool: myAgentPool
 
-variables:
-  azureServiceConnectionId: 'AzureServiceConnection'
-  appName: 'qualityreleaseapp'
-
 stages:
 - stage: Build
   jobs:
@@ -14,7 +10,7 @@ stages:
     steps:
     - script: |
         sudo apt-get update
-        sudo apt-get install -y unzip zip wget nodejs npm
+        sudo apt-get install -y unzip zip wget nodejs npm python3-pip
         sudo rm -rf /usr/local/bin/terraform
         rm -rf terraform terraform.zip terraform-bin
         wget -O terraform.zip https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip
@@ -22,14 +18,13 @@ stages:
         unzip -o terraform.zip -d terraform-bin
         sudo mv terraform-bin/terraform /usr/local/bin/terraform
         terraform version
-      displayName: 'Install Terraform'
+      displayName: 'Install tools'
 
     - script: |
         echo "Checking repository structure..."
         pwd
         ls -la
         find . -maxdepth 4 -type d | sort
-
         if [ -d "terraform/environments/test" ]; then
           cd terraform/environments/test
           terraform init -reconfigure
@@ -48,13 +43,11 @@ stages:
     - script: |
         newman run TestSuite.Data-Validation.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-DataValidation.xml || true
       displayName: 'Run Data Validation Tests'
-      continueOnError: true
       workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
 
     - script: |
         newman run TestSuite.Regression.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-Regression.xml || true
       displayName: 'Run Regression Tests'
-      continueOnError: true
       workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
 
     - task: PublishTestResults@2
@@ -64,19 +57,18 @@ stages:
         searchFolder: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
         mergeTestResults: true
         testRunTitle: 'Postman Tests'
-
-    
+      condition: always()
 
     - task: ArchiveFiles@2
-      displayName: 'Archive FakeRestAPI'
+      displayName: 'Archive UI Tests'
       inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/FakeRestAPI'
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/selenium'
         includeRootFolder: false
         archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip'
 
-    - publish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
-      artifact: drop-fakerestapi
+    - publish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip'
+      artifact: drop-uitests
 
     - task: ArchiveFiles@2
       displayName: 'Archive Performance Tests'
@@ -95,8 +87,6 @@ stages:
   jobs:
   - job: DeploymentEvidence
     steps:
-   
-
     - download: current
       artifact: drop-perftests
 
