@@ -6,6 +6,23 @@ provider "azurerm" {
   features {}
 }
 terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "test" {
+  name     = "Azuredevops"
+  location = "East US"
+}
+terraform {
   backend "azurerm" {
     storage_account_name = "tfstate83519417"
     container_name       = "tfstate"
