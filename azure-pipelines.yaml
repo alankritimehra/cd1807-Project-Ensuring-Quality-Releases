@@ -53,9 +53,18 @@ stages:
 
 - stage: Deploy
   dependsOn: Build
+  condition: succeeded()
   jobs:
   - job: DeploymentEvidence
     steps:
+    - checkout: self
+      clean: true
+
     - script: |
         echo "Deploy stage running"
-      displayName: "Deploy evidence"
+        echo "Running Selenium tests..."
+        cd automatedtesting/selenium
+        ls -la
+        python3 login.py
+      displayName: "Run Selenium Tests"
+      continueOnError: true
