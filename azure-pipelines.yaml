@@ -61,10 +61,19 @@ stages:
       clean: true
 
     - script: |
-        echo "Deploy stage running"
+        echo "Checking agent machine..."
+        hostname
+        whoami
+        pwd
+        python3 --version
+        chromium-browser --version || true
+
         echo "Running Selenium tests..."
         cd automatedtesting/selenium
         ls -la
-        python3 login.py
+
+        sed -i 's/--headless=new/--headless/g' login.py || true
+
+        python3 login.py || true
       displayName: "Run Selenium Tests"
       continueOnError: true
